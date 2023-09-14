@@ -1,32 +1,53 @@
 import { useEffect, useState } from "react";
-export const Toast = ({HandleToggleToast, cart, updateCartItemQuantity}) => {
+import { AxiosInstance } from "../../sevices/axiosInstance/AxiosInstance";
+
+export const Toast = ({HandleToggleToast, cart, updateCartItemQuantity, setAddCart}) => {
     const [selectedVoucher, setSelectedVoucher] = useState(null);
     const [total, setTotal] = useState(0);
 
     useEffect(() => {
     let totalWithVoucher = cart.reduce((acc, item) => {
         return acc + item.quantity * item.harga;
-      }, 0);
-  
-      if (selectedVoucher === 'hemat') {
-        totalWithVoucher -= 10000; 
-      } else if (selectedVoucher === 'puas') {
-        totalWithVoucher -= 100000;
-      }
-  
-      totalWithVoucher = Math.max(0, totalWithVoucher);
-  
-      setTotal(totalWithVoucher);
-    }, [cart, selectedVoucher]);
-      
+    }, 0);
+
+    if (selectedVoucher === 'hemat') {
+    totalWithVoucher -= 10000; 
+    } else if (selectedVoucher === 'puas') {
+    totalWithVoucher -= 100000;
+    }
+
+    totalWithVoucher = Math.max(0, totalWithVoucher);
+
+    setTotal(totalWithVoucher);
+}, [cart, selectedVoucher]);
+    
     const incrementQuantity = (itemId) => {
         updateCartItemQuantity(itemId, 1); 
-      };
-      
-      const decrementQuantity = (itemId) => {
+    };
+    
+    const decrementQuantity = (itemId) => {
         updateCartItemQuantity(itemId, -1); 
-      };
-      
+    };
+    
+    const placeOrder = async () => {
+        try {
+            const orderData = {
+            nominal_diskon: selectedVoucher === 'hemat' ? 10000 : 0,
+            nominal_pesanan: total, 
+            items: cart.map((item) => ({
+                id: item.id,
+                quantity: item.quantity,
+            })),
+            };
+        
+            const response = await AxiosInstance.post('/api/order', orderData);
+            setAddCart([]);
+            setSelectedVoucher(null);
+            HandleToggleToast();
+        } catch (error) {
+            console.error('Order failed:', error);
+        }
+    };
       
     return (
     <section className={`w-50 position-absolute vh-100 end-0 shadow bg-white z10 overflow-scroll `}>
@@ -64,6 +85,8 @@ export const Toast = ({HandleToggleToast, cart, updateCartItemQuantity}) => {
                 <p>Total</p>
                 <p>{total}</p>
             </div>
+            
+            <button onClick={placeOrder}>Buat Pesanan</button>
         </div>
 
     </section>

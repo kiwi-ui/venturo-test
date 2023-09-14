@@ -46,7 +46,7 @@ function App() {
     
    return (
       <> 
-         { showToast ? <Toast HandleToggleToast={HandleToggleToast} cart = {addCart} updateCartItemQuantity= {updateCartItemQuantity}/> : null }
+         { showToast ? <Toast HandleToggleToast={HandleToggleToast} cart = {addCart} updateCartItemQuantity= {updateCartItemQuantity} setAddCart={setAddCart}/> : null }
          <div className={`position-absolute bg-dark bg-opacity-75   w-100 z5 vh-100 ${showToast ? 'd-block' : 'd-none'}`   }></div>
          
          <header>
